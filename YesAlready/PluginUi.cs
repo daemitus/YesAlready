@@ -16,16 +16,16 @@ namespace YesAlready
         {
             this.plugin = plugin;
 
-            plugin.Interface.UiBuilder.OnOpenConfigUi += UiBuilder_OnOpenConfigUi;
-            plugin.Interface.UiBuilder.OnBuildUi += UiBuilder_OnBuildUi_Config;
-            plugin.Interface.UiBuilder.OnBuildUi += UiBuilder_OnBuildUi_ZoneList;
+            plugin.Interface.UiBuilder.OpenConfigUi += UiBuilder_OnOpenConfigUi;
+            plugin.Interface.UiBuilder.Draw += UiBuilder_OnBuildUi_Config;
+            plugin.Interface.UiBuilder.Draw += UiBuilder_OnBuildUi_ZoneList;
         }
 
         public void Dispose()
         {
-            plugin.Interface.UiBuilder.OnOpenConfigUi -= UiBuilder_OnOpenConfigUi;
-            plugin.Interface.UiBuilder.OnBuildUi -= UiBuilder_OnBuildUi_ZoneList;
-            plugin.Interface.UiBuilder.OnBuildUi -= UiBuilder_OnBuildUi_Config;
+            plugin.Interface.UiBuilder.OpenConfigUi -= UiBuilder_OnOpenConfigUi;
+            plugin.Interface.UiBuilder.Draw -= UiBuilder_OnBuildUi_ZoneList;
+            plugin.Interface.UiBuilder.Draw -= UiBuilder_OnBuildUi_Config;
         }
 
 
@@ -37,7 +37,7 @@ namespace YesAlready
 
         public void OpenConfig() => IsImguiConfigOpen = true;
 
-        public void UiBuilder_OnOpenConfigUi(object sender, EventArgs args) => IsImguiConfigOpen = true;
+        public void UiBuilder_OnOpenConfigUi() => IsImguiConfigOpen = true;
 
         public void UiBuilder_OnBuildUi_Config()
         {
@@ -113,11 +113,11 @@ namespace YesAlready
 
         public unsafe IntPtr FindAgentInterface(string addonName)
         {
-            var addon = plugin.Interface.Framework.Gui.GetUiObjectByName(addonName, 1);
+            var addon = plugin.GameGui.GetAddonByName(addonName, 1);
             if (addon == IntPtr.Zero) return IntPtr.Zero;
             var id = *(short*)(addon + 0x1CE);
             if (id == 0) id = *(short*)(addon + 0x1CC);
-            var framework = plugin.Interface.Framework.Address.BaseAddress;
+            var framework = plugin.Framework.Address.BaseAddress;
             var uiModule = *(IntPtr*)(framework + 0x29F8);
             var agentModule = uiModule + 0xC3E78;
             for (var i = 0; i < 379; i++)
@@ -350,7 +350,7 @@ namespace YesAlready
                     ImGui.SameLine(ImGui.GetContentRegionMax().X - searchWidth - searchPlusWidth - newItemSpacing.X);
                     if (ImGuiEx.IconButton(FontAwesomeIcon.SearchPlus, "Fill with current zone"))
                     {
-                        var currentID = plugin.Interface.ClientState.TerritoryType;
+                        var currentID = plugin.ClientState.TerritoryType;
                         if (plugin.TerritoryNames.TryGetValue(currentID, out var zoneName))
                         {
                             entryNode.ZoneText = zoneName;
@@ -582,7 +582,7 @@ namespace YesAlready
 
             ImGui.Begin($"{plugin.Name} Zone List", ref IsImguiZoneListOpen);
 
-            ImGui.Text($"Current ID: {plugin.Interface.ClientState.TerritoryType}");
+            ImGui.Text($"Current ID: {plugin.ClientState.TerritoryType}");
 
             ImGui.Checkbox("Sort by Name", ref SortZoneByName);
 

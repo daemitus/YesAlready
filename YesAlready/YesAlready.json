@@ -1,6 +1,9 @@
 {
   "Author": "daemitus",
-  "Name": "YesAlready",
-  "Description": "Clicks Yes in various dialogs you've specified.",
-  "RepoUrl": "https://github.com/daemitus/YesAlready"
+  "Name": "Yes Already",
+  "Punchline": "Clicks Yes in various dialogs you've specified.",
+  "Description": "Tired of clicking yes in Praetorium? Can't stand using keys in dungeons? Well do I have the plugin for you! Yes Already is specifically designed to click all the annoying dialogs you've grown accustomed facerolling. Just enter the dialog text, and you'll never see it again! Also works with /regex/ and has several built-in modules for dialogs that aren't quite yes/no prompts but act like it (like desynth).",
+  "RepoUrl": "https://github.com/daemitus/YesAlready",
+  "IconUrl": "https://github.com/daemitus/YesAlready/raw/master/res/icon.png",
+  "ImageUrls": []
 }

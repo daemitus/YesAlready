@@ -9,10 +9,12 @@ on:
     - master
 
 env:
+  PUBLIC_NAME: Yes Already
   SOLUTION_NAME: YesAlready
   INTERNAL_NAME: YesAlready
   RELEASE_DIR: YesAlready\bin\Release\YesAlready
   PERSONAL_PLUGIN_REPO: daemitus/MyDalamudPlugins
+  PR_PLUGIN_REPO: daemitus/DalamudPlugins
 
 jobs:
   build:
@@ -26,7 +28,7 @@ jobs:
       uses: microsoft/setup-msbuild@v1.0.2
     - name: Download Dalamud
       run: |
-        Invoke-WebRequest -Uri https://goatcorp.github.io/dalamud-distrib/latest.zip -OutFile latest.zip
+        Invoke-WebRequest -Uri https://goatcorp.github.io/dalamud-distrib/stg/latest.zip -OutFile latest.zip
         Expand-Archive -Force latest.zip "$env:AppData\XIVLauncher\addon\Hooks\dev\"   
     - name: Build
       run: |
@@ -42,6 +44,7 @@ jobs:
 
   deploy:
     needs: build
+    if: "contains(toJSON(github.event.commits.*.message), '[PUSH]')"
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -52,14 +55,46 @@ jobs:
       with:
         name: PluginRepoZip
         path: plugins/${{ env.INTERNAL_NAME }}
-    - uses: actions/download-artifact@v2
-      if: "contains(toJSON(github.event.commits.*.message), '[TEST]')"
-      with:
-        name: PluginRepoZip
-        path: testing/${{ env.INTERNAL_NAME }}    
     - uses: EndBug/add-and-commit@v7
       with:
         add: --all
         author_name: GitHub Action
         author_email: github-actions[bot]@users.noreply.github.com
         message: Update ${{ env.INTERNAL_NAME }}
+    
+  deploy_api4:
+    needs: build
+    if: "contains(toJSON(github.event.commits.*.message), '[PUSH4]')"
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        repository: ${{ env.PERSONAL_PLUGIN_REPO }}
+        token: ${{ secrets.PAT }}
+        ref: api4
+    - uses: actions/download-artifact@v2
+      with:
+        name: PluginRepoZip
+        path: plugins/${{ env.INTERNAL_NAME }}
+    - uses: EndBug/add-and-commit@v7
+      with:
+        add: --all
+        branch: api4
+        author_name: GitHub Action
+        author_email: github-actions[bot]@users.noreply.github.com
+        message: Update ${{ env.INTERNAL_NAME }}
+
+  pull_request:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v2
+      id: download-artifact
+      with:
+        name: PluginRepoZip
+        path: PluginArtifact
+    - uses: daemitus/DalamudPluginPR@master
+      with: 
+        token: ${{ secrets.PAT }}
+        artifact_path: ${{ steps.download-artifact.outputs.download-path }}  

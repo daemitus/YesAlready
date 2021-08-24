@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31105.61
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31423.177
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YesAlready", "YesAlready\YesAlready.csproj", "{151006FE-161B-478D-BA72-479DFBF4BE7A}"
 EndProject
@@ -17,28 +17,40 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FFXIVClientStructs", "lib\FFXIVClientStructs\FFXIVClientStructs.csproj", "{68A5EDCF-3C60-44D1-B8E2-4E50D2279711}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClickLib", "lib\ClickLib\ClickLib\ClickLib.csproj", "{029CD692-00EF-4B95-B140-6BEEE9660480}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FFXIVClientStructs", "lib\FFXIVClientStructs\FFXIVClientStructs\FFXIVClientStructs.csproj", "{29FFF275-90DA-4F61-9519-29223055B2BE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FFXIVClientStructs.Common", "lib\FFXIVClientStructs\FFXIVClientStructs.Common\FFXIVClientStructs.Common.csproj", "{205F4864-48F7-4C0D-87D3-60EBAF7401D7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FFXIVClientStructs.Generators", "lib\FFXIVClientStructs\FFXIVClientStructs.Generators\FFXIVClientStructs.Generators.csproj", "{9ACFE3FE-0880-4DC8-92F6-0E62763D21B2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
-		Release|Any CPU = Release|Any CPU
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{151006FE-161B-478D-BA72-479DFBF4BE7A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{151006FE-161B-478D-BA72-479DFBF4BE7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{151006FE-161B-478D-BA72-479DFBF4BE7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{151006FE-161B-478D-BA72-479DFBF4BE7A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{68A5EDCF-3C60-44D1-B8E2-4E50D2279711}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{68A5EDCF-3C60-44D1-B8E2-4E50D2279711}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{68A5EDCF-3C60-44D1-B8E2-4E50D2279711}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{68A5EDCF-3C60-44D1-B8E2-4E50D2279711}.Release|Any CPU.Build.0 = Release|Any CPU
-		{029CD692-00EF-4B95-B140-6BEEE9660480}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{029CD692-00EF-4B95-B140-6BEEE9660480}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{029CD692-00EF-4B95-B140-6BEEE9660480}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{029CD692-00EF-4B95-B140-6BEEE9660480}.Release|Any CPU.Build.0 = Release|Any CPU
+		{151006FE-161B-478D-BA72-479DFBF4BE7A}.Debug|x64.ActiveCfg = Debug|x64
+		{151006FE-161B-478D-BA72-479DFBF4BE7A}.Debug|x64.Build.0 = Debug|x64
+		{151006FE-161B-478D-BA72-479DFBF4BE7A}.Release|x64.ActiveCfg = Release|x64
+		{151006FE-161B-478D-BA72-479DFBF4BE7A}.Release|x64.Build.0 = Release|x64
+		{029CD692-00EF-4B95-B140-6BEEE9660480}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{029CD692-00EF-4B95-B140-6BEEE9660480}.Debug|x64.Build.0 = Debug|Any CPU
+		{029CD692-00EF-4B95-B140-6BEEE9660480}.Release|x64.ActiveCfg = Release|Any CPU
+		{029CD692-00EF-4B95-B140-6BEEE9660480}.Release|x64.Build.0 = Release|Any CPU
+		{29FFF275-90DA-4F61-9519-29223055B2BE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{29FFF275-90DA-4F61-9519-29223055B2BE}.Debug|x64.Build.0 = Debug|Any CPU
+		{29FFF275-90DA-4F61-9519-29223055B2BE}.Release|x64.ActiveCfg = Release|Any CPU
+		{29FFF275-90DA-4F61-9519-29223055B2BE}.Release|x64.Build.0 = Release|Any CPU
+		{205F4864-48F7-4C0D-87D3-60EBAF7401D7}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{205F4864-48F7-4C0D-87D3-60EBAF7401D7}.Debug|x64.Build.0 = Debug|Any CPU
+		{205F4864-48F7-4C0D-87D3-60EBAF7401D7}.Release|x64.ActiveCfg = Release|Any CPU
+		{205F4864-48F7-4C0D-87D3-60EBAF7401D7}.Release|x64.Build.0 = Release|Any CPU
+		{9ACFE3FE-0880-4DC8-92F6-0E62763D21B2}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{9ACFE3FE-0880-4DC8-92F6-0E62763D21B2}.Debug|x64.Build.0 = Debug|Any CPU
+		{9ACFE3FE-0880-4DC8-92F6-0E62763D21B2}.Release|x64.ActiveCfg = Release|Any CPU
+		{9ACFE3FE-0880-4DC8-92F6-0E62763D21B2}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

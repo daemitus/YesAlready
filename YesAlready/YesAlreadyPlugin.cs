@@ -1,8 +1,14 @@
 ﻿using ClickLib;
+using Dalamud.Data;
+using Dalamud.Game;
+using Dalamud.Game.ClientState;
 using Dalamud.Game.Command;
+using Dalamud.Game.Gui;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
 using Dalamud.Hooking;
+using Dalamud.IoC;
+using Dalamud.Logging;
 using Dalamud.Plugin;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
@@ -15,32 +21,57 @@ using System.Text;
 
 namespace YesAlready
 {
-    public class YesAlreadyPlugin : IDalamudPlugin
+    public sealed class YesAlreadyPlugin : IDalamudPlugin
     {
-        public string Name => "YesAlready";
+        public string Name => "Yes Already";
         public string Command => "/pyes";
 
         internal const int CURRENT_CONFIG_VERSION = 2;
-        internal YesAlreadyConfiguration Configuration;
-        internal DalamudPluginInterface Interface;
-        internal PluginAddressResolver Address;
-        private PluginUI PluginUi;
+
+        internal YesAlreadyConfiguration Configuration { get; private set; }
+        internal PluginAddressResolver Address { get; private set; }
+        internal DalamudPluginInterface Interface { get; private set; }
+        internal ChatGui ChatGui { get; private set; }
+        internal ClientState ClientState { get; private set; }
+        internal CommandManager CommandManager { get; private set; }
+        internal DataManager DataManager { get; private set; }
+        internal Framework Framework { get; private set; }
+        internal GameGui GameGui { get; private set; }
+        internal SeStringManager SeStringManager { get; private set; }
+
+        private readonly PluginUI PluginUi;
 
         private readonly List<Hook<OnSetupDelegate>> OnSetupHooks = new();
-        private Hook<OnSetupDelegate> AddonSelectYesNoOnSetupHook;
-        private Hook<OnSetupDelegate> AddonSalvageDialogOnSetupHook;
-        private Hook<OnSetupDelegate> AddonMaterializeDialogOnSetupHook;
-        private Hook<OnSetupDelegate> AddonItemInspectionResultOnSetupHook;
-        private Hook<OnSetupDelegate> AddonRetainerTaskAskOnSetupHook;
-        private Hook<OnSetupDelegate> AddonRetainerTaskResultOnSetupHook;
-        private Hook<OnSetupDelegate> AddonGrandCompanySupplyRewardOnSetupHook;
-        private Hook<OnSetupDelegate> AddonShopCardDialogOnSetupHook;
+        private readonly Hook<OnSetupDelegate> AddonSelectYesNoOnSetupHook;
+        private readonly Hook<OnSetupDelegate> AddonSalvageDialogOnSetupHook;
+        private readonly Hook<OnSetupDelegate> AddonMaterializeDialogOnSetupHook;
+        private readonly Hook<OnSetupDelegate> AddonItemInspectionResultOnSetupHook;
+        private readonly Hook<OnSetupDelegate> AddonRetainerTaskAskOnSetupHook;
+        private readonly Hook<OnSetupDelegate> AddonRetainerTaskResultOnSetupHook;
+        private readonly Hook<OnSetupDelegate> AddonGrandCompanySupplyRewardOnSetupHook;
+        private readonly Hook<OnSetupDelegate> AddonShopCardDialogOnSetupHook;
 
         internal readonly Dictionary<uint, string> TerritoryNames = new();
 
-        public void Initialize(DalamudPluginInterface pluginInterface)
+        public YesAlreadyPlugin(
+            [RequiredVersion("1.0")] DalamudPluginInterface pluginInterface,
+            [RequiredVersion("1.0")] ChatGui chatGui,
+            [RequiredVersion("1.0")] ClientState clientState,
+            [RequiredVersion("1.0")] CommandManager commandManager,
+            [RequiredVersion("1.0")] DataManager dataManager,
+            [RequiredVersion("1.0")] Framework framework,
+            [RequiredVersion("1.0")] GameGui gameGui,
+            [RequiredVersion("1.0")] SeStringManager seStringManager)
         {
             Interface = pluginInterface ?? throw new ArgumentNullException(nameof(pluginInterface), "DalamudPluginInterface cannot be null");
+
+            ChatGui = chatGui;
+            ClientState = clientState;
+            CommandManager = commandManager;
+            DataManager = dataManager;
+            Framework = framework;
+            GameGui = gameGui;
+            SeStringManager = seStringManager;
 
             Configuration = YesAlreadyConfiguration.Load(pluginInterface);
             if (Configuration.Version < CURRENT_CONFIG_VERSION)
@@ -49,35 +80,35 @@ namespace YesAlready
                 SaveConfiguration();
             }
 
-            Interface.CommandManager.AddHandler(Command, new CommandInfo(OnChatCommand)
+            CommandManager.AddHandler(Command, new CommandInfo(OnChatCommand)
             {
                 HelpMessage = "Open a window to edit various settings.",
                 ShowInHelp = true
             });
 
             Address = new PluginAddressResolver();
-            Address.Setup(pluginInterface.TargetModuleScanner);
+            Address.Setup();
 
             LoadTerritories();
 
             PluginUi = new PluginUI(this);
 
-            Click.Initialize(pluginInterface);
+            Click.Initialize();
 
-            OnSetupHooks.Add(AddonSelectYesNoOnSetupHook = new(Address.AddonSelectYesNoOnSetupAddress, new OnSetupDelegate(AddonSelectYesNoOnSetupDetour), this));
-            OnSetupHooks.Add(AddonSalvageDialogOnSetupHook = new(Address.AddonSalvageDialongOnSetupAddress, new OnSetupDelegate(AddonSalvageDialogOnSetupDetour), this));
-            OnSetupHooks.Add(AddonMaterializeDialogOnSetupHook = new(Address.AddonMaterializeDialongOnSetupAddress, new OnSetupDelegate(AddonMaterializeDialogOnSetupDetour), this));
-            OnSetupHooks.Add(AddonItemInspectionResultOnSetupHook = new(Address.AddonItemInspectionResultOnSetupAddress, new OnSetupDelegate(AddonItemInspectionResultOnSetupDetour), this));
-            OnSetupHooks.Add(AddonRetainerTaskAskOnSetupHook = new(Address.AddonRetainerTaskAskOnSetupAddress, new OnSetupDelegate(AddonRetainerTaskAskOnSetupDetour), this));
-            OnSetupHooks.Add(AddonRetainerTaskResultOnSetupHook = new(Address.AddonRetainerTaskResultOnSetupAddress, new OnSetupDelegate(AddonRetainerTaskResultOnSetupDetour), this));
-            OnSetupHooks.Add(AddonGrandCompanySupplyRewardOnSetupHook = new(Address.AddonGrandCompanySupplyRewardOnSetupAddress, new OnSetupDelegate(AddonGrandCompanySupplyRewardOnSetupDetour), this));
-            OnSetupHooks.Add(AddonShopCardDialogOnSetupHook = new(Address.AddonShopCardDialogOnSetupAddress, new OnSetupDelegate(AddonShopCardDialogOnSetupDetour), this));
+            OnSetupHooks.Add(AddonSelectYesNoOnSetupHook = new(Address.AddonSelectYesNoOnSetupAddress, AddonSelectYesNoOnSetupDetour));
+            OnSetupHooks.Add(AddonSalvageDialogOnSetupHook = new(Address.AddonSalvageDialongOnSetupAddress, AddonSalvageDialogOnSetupDetour));
+            OnSetupHooks.Add(AddonMaterializeDialogOnSetupHook = new(Address.AddonMaterializeDialongOnSetupAddress, AddonMaterializeDialogOnSetupDetour));
+            OnSetupHooks.Add(AddonItemInspectionResultOnSetupHook = new(Address.AddonItemInspectionResultOnSetupAddress, AddonItemInspectionResultOnSetupDetour));
+            OnSetupHooks.Add(AddonRetainerTaskAskOnSetupHook = new(Address.AddonRetainerTaskAskOnSetupAddress, AddonRetainerTaskAskOnSetupDetour));
+            OnSetupHooks.Add(AddonRetainerTaskResultOnSetupHook = new(Address.AddonRetainerTaskResultOnSetupAddress, AddonRetainerTaskResultOnSetupDetour));
+            OnSetupHooks.Add(AddonGrandCompanySupplyRewardOnSetupHook = new(Address.AddonGrandCompanySupplyRewardOnSetupAddress, AddonGrandCompanySupplyRewardOnSetupDetour));
+            OnSetupHooks.Add(AddonShopCardDialogOnSetupHook = new(Address.AddonShopCardDialogOnSetupAddress, AddonShopCardDialogOnSetupDetour));
             OnSetupHooks.ForEach(hook => hook.Enable());
         }
 
         public void Dispose()
         {
-            Interface.CommandManager.RemoveHandler(Command);
+            CommandManager.RemoveHandler(Command);
 
             OnSetupHooks.ForEach(hook => hook.Dispose());
 
@@ -86,7 +117,7 @@ namespace YesAlready
 
         private void LoadTerritories()
         {
-            var sheet = Interface.Data.GetExcelSheet<TerritoryType>();
+            var sheet = DataManager.GetExcelSheet<TerritoryType>();
             foreach (var row in sheet)
             {
                 var zone = row.PlaceName.Value;
@@ -101,16 +132,15 @@ namespace YesAlready
             }
         }
 
-        internal void PrintMessage(string message) => Interface.Framework.Gui.Chat.Print($"[{Name}] {message}");
+        internal void PrintMessage(string message) => ChatGui.Print($"[{Name}] {message}");
 
         internal void PrintMessage(SeString message)
         {
             message.Payloads.Insert(0, new TextPayload($"[{Name}] "));
-            Interface.Framework.Gui.Chat.Print(message);
+            ChatGui.Print(message);
         }
 
-
-        internal void PrintError(string message) => Interface.Framework.Gui.Chat.PrintError($"[{Name}] {message}");
+        internal void PrintError(string message) => ChatGui.PrintError($"[{Name}] {message}");
 
         internal void SaveConfiguration() => Interface.SavePluginConfig(Configuration);
 
@@ -138,7 +168,7 @@ namespace YesAlready
 
         private SeString GetSeString(byte[] bytes)
         {
-            return Interface.SeStringManager.Parse(bytes);
+            return SeStringManager.Parse(bytes);
 
         }
 
@@ -212,7 +242,7 @@ namespace YesAlready
                         {
                             if (node.ZoneRestricted && !string.IsNullOrEmpty(node.ZoneText))
                             {
-                                if (!TerritoryNames.TryGetValue(Interface.ClientState.TerritoryType, out var zoneName))
+                                if (!TerritoryNames.TryGetValue(ClientState.TerritoryType, out var zoneName))
                                 {
                                     if (zoneWarnOnce && !(zoneWarnOnce = false))
                                     {

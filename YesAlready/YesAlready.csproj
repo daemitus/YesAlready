@@ -3,66 +3,35 @@
   <PropertyGroup>
     <Authors>daemitus</Authors>
     <Company>-</Company>
-    <Version>1.0.2.2</Version>
+    <Version>1.1.0.0</Version>
     <Description></Description>
     <Copyright></Copyright>
     <PackageProjectUrl>https://github.com/daemitus/YesAlready</PackageProjectUrl>
   </PropertyGroup>
 
   <PropertyGroup>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>YesAlready</RootNamespace>
-    <AssemblyName>YesAlready</AssemblyName>
+    <TargetFramework>net5.0-windows</TargetFramework>
+    <Platforms>x64</Platforms>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
-    <TargetFramework>net472</TargetFramework>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
-    <LangVersion>9.0</LangVersion>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="..\res\icon.png" Link="images\icon.png" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+  </ItemGroup>
 
   <PropertyGroup>
     <DalamudLibPath>$(appdata)\XIVLauncher\addon\Hooks\dev\</DalamudLibPath>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Fonts\**" />
-    <EmbeddedResource Remove="Fonts\**" />
-    <None Remove="Fonts\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="..\.editorconfig" Link=".editorconfig" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="DalamudPackager" Version="1.2.1" />
+    <PackageReference Include="DalamudPackager" Version="2.1.2" />
     <PackageReference Include="ILRepack" Version="2.0.18" GeneratePathProperty="true" />
-    <ProjectReference Include="$(SolutionDir)lib\FFXIVClientStructs\FFXIVClientStructs.csproj" />
     <ProjectReference Include="..\lib\ClickLib\ClickLib\ClickLib.csproj" />
+    <ProjectReference Include="..\lib\FFXIVClientStructs\FFXIVClientStructs\FFXIVClientStructs.csproj" />
     <Reference Include="Newtonsoft.Json">
       <HintPath>$(DalamudLibPath)Newtonsoft.Json.dll</HintPath>
       <Private>False</Private>
@@ -105,15 +74,4 @@
     <Delete Files="@(DeleteAssemblies)" />
   </Target>
 
-  <Target Name="LivePluginLoadCopy" AfterTargets="CleanOutDir" Condition=" '$(Configuration)' == 'Debug' ">
-    <Message Text="Copying for LPL" Importance="high" />
-    <Exec Command="if not exist $(TargetDir)LPL ( mkdir $(TargetDir)LPL )" />
-    <Exec Command="copy $(TargetPath) $(TargetDir)LPL\$(TargetFileName)" />
-    <Exec Command="copy $(TargetDir)*.pdb $(TargetDir)LPL\" />
-  </Target>
-
-  <Target Name="PackagePlugin" AfterTargets="CleanOutDir" Condition=" '$(Configuration)' == 'Release' ">
-    <Message Text="Starting DalamudPackager" Importance="high" />
-    <DalamudPackager ProjectDir="$(ProjectDir)" OutputPath="$(OutputPath)" AssemblyName="$(AssemblyName)" VersionComponents="4" MakeZip="true" />
-  </Target>
 </Project>
