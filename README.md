@@ -6,3 +6,6 @@ Each type of dialog needs to be manually added, if you would like one that is no
 
 ## In-game usage
 * Type `/pyes` to pull up the GUI.
+
+## Installation
+* Add `https://github.com/daemitus/MyDalamudPlugins/raw/master/pluginmaster.json` to your list of repos in `/xlsettings`
